@@ -1,91 +1,95 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html>
 <head>
 	<meta charset="utf-8">
 	<title>rank_by_drag</title>
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<script type="text/javascript" src="js/main.js"></script>
 </head>
 <body>
 	<div class="main">
-		
-	</div>
-
-	<div class="upload_img">
-		<p>
-		    <label>请选择一个文件：</label>
-		    <input type="file" id="file" />
-		    <input type="button" value="读取图像" onclick = "readAsDataURL()"/>
-		    <input type="button" value="读取二进制数据" onclick = "readAsBinaryString()"/>
-		    <input type="button" value="读取文本文件" onclick = "readAsText()"/>
-		    <input type="button" value="读取图像方法二" onclick = "readPicture()"/>
-		</p>
-		<div id="result"></div>
+		<div class="upload_img">
+		    <div class="upload_button">
+		    	<input type="file" id="files" multiple size="10" onchange="fileChange()" />
+		    	点击这里上传图片
+		    </div>		    
+	    </div>
+		<ul id="result" class="error result"></ul>		
 	</div>
 </body>
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript">
     var result = document.getElementById("result");
+    var count = 0;
     if(typeof FileReader == 'undefined') {
-        result.innerHTML = "抱歉，你的浏览器不支持FileReader";
+        result.innerHTML = "抱歉，你的浏览器不支持预览";
     }
-    // 将文件以Data URL形式进行读入页面
-    function readAsDataURL(){
-        // 检查是否为图像类型
-        var simpleFile = document.getElementById("file").files[0];
-        if(!/image\/\w+/.test(simpleFile.type)) {
-            alert("请确保文件类型为图像类型");
-            return false;
-        }
-        var reader = new FileReader();
-        // 将文件以Data URL形式进行读入页面,包含数据类型、编码方式、编码数据三部分
-        reader.readAsDataURL(simpleFile);
-        reader.onload = function(e){
-        	var data = this.result;
-            data = data.replace("data:image/jpeg;base64,","");
-            console.log(window.atob(data));		
-            result.innerHTML = '<img src="'+this.result+'" alt=""/>';
-        }
+
+    var files = document.getElementById("files");
+
+    function fileChange(){
+    //	removeListener(result);
+    	readFiles(files,result);
+    	var timer = setInterval(function(){
+    		if(result.getElementsByTagName("li").length==files.files.length){
+                /*depatch the events here !*/
+    			clearInterval(timer);
+    		}
+    	},10);
     }
-    // 将文件以二进制形式读入页面
-    function readAsBinaryString(){
-        // 检查是否为图像类型
-        var simpleFile = document.getElementById("file").files[0];
-        if(!/image\/\w+/.test(simpleFile.type)) {
-            alert("请确保文件类型为图像类型");
-            return false;
-        }
-        var reader = new FileReader();
-        // 将文件以二进制形式进行读入页面
-        reader.readAsBinaryString(simpleFile);
-        reader.onload = function(e){
-            // 在页面上显示二进制数据
-            result.innerHTML = this.result;
-        }
-    }
-    // 将文件以文本形式读入页面中
-    function readAsText(){
-        var simpleFile = document.getElementById("file").files[0];
-        var reader = new FileReader();
-        // 将文件以文本形式读入页面中
-        reader.readAsText(simpleFile);
-        reader.onload = function(e){
-            result.innerHTML = this.result;
+    var parentNode = document.getElementById("result");
+
+    function readFiles(files,target){
+        target.innerHTML = '';
+        var img_length = files.files.length;
+        var i = 0;
+        for(var simpleFile of files.files){           
+            if(simpleFile == undefined){
+                target.innerHTML = "请先选择要上传的图片！";
+            }
+            if(!/image\/\w+/.test(simpleFile.type)) {
+                alert("请确保文件类型为图片");
+                return false;
+            }
+            var reader = new FileReader();
+            reader.readAsDataURL(simpleFile);
+            reader.onload = function(e){    
+               target.innerHTML += '<li id="drag_'+i+'" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)"><img src="'+this.result+'" alt=""/></li>';
+               i++;
+            }
         }
     }
 
-    function readPicture(){
-	    // 检查是否为图像类型
-	    var simpleFile = document.getElementById("file").files[0];
-	    if(!/image\/\w+/.test(simpleFile.type)) {
-	        alert("请确保文件类型为图像类型");
-	        return false;
-	    }
-	    var reader = new FileReader();
-	    // 将文件以二进制文件读入页面中
-	    reader.readAsBinaryString(simpleFile);
-	    reader.onload = function(f){
-	        var src = "data:" + simpleFile.type + ";base64," + window.btoa(this.result);
-	        result.innerHTML = '<img src ="'+src+'"/>';
-	    }
-	}
+    function drag(ev){  /*这里的 ev.target指的是最开始触发事件的元素<img>，因为事件冒泡，使得其父元素的事件处理函数来处理该事件*/
+        ev.dataTransfer.effectAllowed='move';
+        ev.dataTransfer.setData("Text",ev.target.parentNode.getAttribute('id'));
+        console.log("src:");
+        console.log(ev.target);
+        ev.dataTransfer.setDragImage(ev.target,0,0); /*使得拖拽过程中鼠标在图像左上角*/
+    }
+
+    function allowDrop(ev) {
+        ev.preventDefault();    /*允许放置*/
+    }
+
+    function drop(ev) { 
+        ev.preventDefault();    /*可以放置*/
+        var src = ev.dataTransfer.getData("Text");
+        var data_old = ev.target.parentNode.innerHTML;
+        ev.target.parentNode.innerHTML = document.getElementById(src).innerHTML;
+        document.getElementById(src).innerHTML = data_old;
+    }
+
+    function forbidDrop(ev){
+        return false;
+    }
+
+    function noDrop(ev){
+        return false;
+    }
+
+   
+
+
 </script>
 </html>
