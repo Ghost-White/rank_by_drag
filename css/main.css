@@ -20,6 +20,9 @@ ul li{
 	color: yellow;
 	font-weight: bold;
 }
+.fl{
+	float: left;
+}
 .upload_button{
 	width: 200px;
 	height: 50px;
@@ -45,15 +48,30 @@ ul li{
 	filter: alpha(opacity=0);
 	position: absolute;
 }
+
+.upload_img p{
+	position: absolute;
+	top: 70px;
+	left: 320px;
+	font-size: 16px;
+	color: #65a47a;
+}
+
+
 .result{
 	width: 1000px;
 	margin: 50px 0 0 100px;
+	position: relative;
 }
 .result li{
 	width: 220px;
 	height: 220px;
 	float: left;
 	cursor: move;
+}
+
+.result li.over{
+	border:1px dashed #65a47a;
 }
 .result li img{
 	display: inline-block;
@@ -70,3 +88,22 @@ ul li{
 /*.result img:hover{
 	box-shadow: 5px 5px 4px #6495ED inset,-5px -5px 4px #6495ED inset;
 }*/
+
+.ghost{
+	position: absolute;
+	width: 220px;
+	height: 220px;
+	cursor: move;
+	overflow: hidden;
+	transition: left 2s,top 2s;
+	-moz-transition: left 2s,top 2s;
+	-webkit-transition: left 2s,top 2s;
+	-o-transition: left 2s,top 2s;
+	z-index: -10;
+}
+.ghost img{
+	display: inline-block;
+	width:200px;
+	height: 200px;	
+	padding: 10px;	
+}

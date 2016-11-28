@@ -1,5 +1,3 @@
-
-
 /*获取DOM元素的index,不含文本和注释*/
 function getChildrenIndex(ele){ 
 	//IE is simplest and fastest 

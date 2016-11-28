@@ -1,0 +1,170 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>使用顺延的方式排序</title>
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<script type="text/javascript" src="js/main.js"></script>
+</head>
+<body>
+	<div class="main">
+		<div class="upload_img">
+		    <div class="upload_button">
+		    	<input type="file" id="files" multiple size="10" onchange="fileChange()" />
+		    	点击这里上传图片
+		    </div>
+            <p>使用顺延的方式排序</p>		    
+	    </div>
+		<ul id="result" class="error result"></ul>		
+	</div>
+</body>
+<script type="text/javascript" src="js/main.js"></script>
+<script type="text/javascript">
+    var result = document.getElementById("result");
+    var count = 0;
+    if(typeof FileReader == 'undefined') {
+        result.innerHTML = "抱歉，你的浏览器不支持预览";
+    }
+
+    var files = document.getElementById("files");
+
+    function fileChange(){
+    	readFiles(files,result);
+    	var timer = setInterval(function(){
+    		if(result.getElementsByTagName("li").length==files.files.length){
+                /*depatch the events here !*/
+                var lis = document.querySelectorAll('#result li');
+                [].forEach.call(lis, function(li) {
+                  li.querySelectorAll('img')[0].addEventListener('dragstart', handleDragStart, false);
+                  li.querySelectorAll('img')[0].addEventListener('dragenter', handleDragEnter, false);
+                  li.querySelectorAll('img')[0].addEventListener('dragover', handleDragOver, false);
+                  li.querySelectorAll('img')[0].addEventListener('dragleave', handleDragLeave, false);
+                  li.querySelectorAll('img')[0].addEventListener('drop',handleDrop,false);
+                });
+    			clearInterval(timer);
+    		}
+    	},10);
+    }
+    var parentNode = document.getElementById("result");
+
+    function readFiles(files,target){
+        target.innerHTML = '';
+        var img_length = files.files.length;
+        var i = 0;
+        for(var simpleFile of files.files){           
+            if(simpleFile == undefined){
+                target.innerHTML = "请先选择要上传的图片！";
+            }
+            if(!/image\/\w+/.test(simpleFile.type)) {
+                alert("请确保文件类型为图片");
+                return false;
+            }
+            var reader = new FileReader();
+            reader.readAsDataURL(simpleFile);
+            reader.onload = function(e){    
+               target.innerHTML += '<li id="drag_'+i+'"><img draggable="true" src="'+this.result+'" alt=""/></li>';
+               i++;
+            }
+        }
+    }
+
+    var src_id = null,
+        tar_id = null;
+
+    function set_src_id(id){
+        src_id = id;
+    }
+
+    function get_src_id(){
+        return src_id;
+    }
+
+    function handleDragStart(ev){  /*这里的 ev.target指的是最开始触发事件的元素<img>，因为事件冒泡，使得其父元素的事件处理函数来处理该事件*/
+        ev.dataTransfer.effectAllowed='move';
+        ev.dataTransfer.setData("SRC_ID",ev.target.parentNode.getAttribute('id'));
+        set_src_id(ev.target.parentNode.getAttribute('id'));
+        ev.dataTransfer.setDragImage(ev.target,100,100); /*使得拖拽过程中鼠标在图像左上角*/
+        return false;
+    }
+
+    function handleDragOver(ev) {   /*dragover 事件会在鼠标悬停在上方时不断启动*/
+        ev.preventDefault();    /*允许放置*/
+        return false;
+    }
+
+    function handleDragLeave(ev){
+        ev.target.parentNode.classList.remove('over');
+        return false;
+    }
+
+    function handleDrop(ev) {
+        console.log('drop');
+        ev.target.parentNode.classList.remove('over'); 
+        ev.preventDefault();    /*可以放置*/
+        /*设置 ghost element 的新位置，实现动画效果*/
+        var tar = ev.target.parentNode;
+        var src = document.getElementById(ev.dataTransfer.getData('SRC_ID'));
+
+        src_top = src.offsetTop;
+        src_left = src.offsetLeft;
+        tar_top = tar.offsetTop;
+        tar_left = tar.offsetLeft;
+
+        var src_ghost_node = document.querySelectorAll('#result .src')[0],
+            tar_ghost_node = document.querySelectorAll('#result .tar')[0];
+
+        src_ghost_node.style.left = tar_left;
+        src_ghost_node.style.top = tar_top;
+        tar_ghost_node.style.left = src_left;
+        tar_ghost_node.style.top = src_top;
+
+        return false;
+    }
+
+    function handleDragEnter(ev){       /*无法获取 dataTransfer 的数据，只能通过全局变量保存数据*/ 
+
+        /*先清理掉之前生成的 ghost element */
+        var parent = document.getElementById('result');
+        var child = parent.querySelectorAll('.ghost');
+        for(var c of child){
+            parent.removeChild(c);
+        }
+
+        var tar = ev.target.parentNode;
+        var tar_id = ev.target.parentNode.getAttribute('id');
+        var src_id = get_src_id();
+        if(tar_id !== src_id){
+            console.log('enter:'+ev.target.parentNode.getAttribute('id'));
+            tar.classList.add('over');
+            var src = document.getElementById(src_id);
+            var src_top,src_left,tar_top,tar_left;  /*ghost elements' position*/
+
+            src_top = src.offsetTop;
+            src_left = src.offsetLeft;
+            tar_top = tar.offsetTop;
+            tar_left = tar.offsetLeft;
+
+            var src_ghost_node = document.createElement("div");
+            src_ghost_node.classList.add("ghost");
+            src_ghost_node.classList.add("src");
+            src_ghost_node.style.left = src_left+'px';
+            src_ghost_node.style.top = src_top+'px';
+            src_ghost_node.innerHTML = src.innerHTML;
+
+            var tar_ghost_node = document.createElement("div");
+            tar_ghost_node.classList.add("ghost");
+            src_ghost_node.classList.add("tar");
+            tar_ghost_node.style.left = tar_left+'px';
+            tar_ghost_node.style.top = tar_top+'px';
+            tar_ghost_node.innerHTML = tar.innerHTML;
+
+            document.getElementById('result').appendChild(src_ghost_node);
+            document.getElementById('result').appendChild(tar_ghost_node);
+        }else{
+            return false;
+        }
+       
+    }
+
+</script>
+</html>

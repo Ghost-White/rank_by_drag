@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>rank_by_drag</title>
+	<title>使用交换位置的方式排序</title>
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 	<script type="text/javascript" src="js/main.js"></script>
 </head>
@@ -12,7 +12,8 @@
 		    <div class="upload_button">
 		    	<input type="file" id="files" multiple size="10" onchange="fileChange()" />
 		    	点击这里上传图片
-		    </div>		    
+		    </div>
+            <p>使用交换位置的方式排序</p>		    
 	    </div>
 		<ul id="result" class="error result"></ul>		
 	</div>
@@ -28,11 +29,18 @@
     var files = document.getElementById("files");
 
     function fileChange(){
-    //	removeListener(result);
     	readFiles(files,result);
     	var timer = setInterval(function(){
     		if(result.getElementsByTagName("li").length==files.files.length){
                 /*depatch the events here !*/
+                var lis = document.querySelectorAll('#result li');
+                [].forEach.call(lis, function(li) {
+                  li.addEventListener('dragstart', handleDragStart, false);
+                  li.addEventListener('dragenter', handleDragEnter, false);
+                  li.addEventListener('dragover', handleDragOver, false);
+                  li.addEventListener('dragleave', handleDragLeave, false);
+                  li.addEventListener('drop',handleDrop,false);
+                });
     			clearInterval(timer);
     		}
     	},10);
@@ -54,42 +62,40 @@
             var reader = new FileReader();
             reader.readAsDataURL(simpleFile);
             reader.onload = function(e){    
-               target.innerHTML += '<li id="drag_'+i+'" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)"><img src="'+this.result+'" alt=""/></li>';
+               target.innerHTML += '<li id="drag_'+i+'" draggable="true"><img src="'+this.result+'" alt=""/></li>';
                i++;
             }
         }
     }
 
-    function drag(ev){  /*这里的 ev.target指的是最开始触发事件的元素<img>，因为事件冒泡，使得其父元素的事件处理函数来处理该事件*/
+    function handleDragStart(ev){  /*这里的 ev.target指的是最开始触发事件的元素<img>，因为事件冒泡，使得其父元素的事件处理函数来处理该事件*/
         ev.dataTransfer.effectAllowed='move';
-        ev.dataTransfer.setData("Text",ev.target.parentNode.getAttribute('id'));
-        console.log("src:");
-        console.log(ev.target);
+        ev.dataTransfer.setData("SRC_ID",ev.target.parentNode.getAttribute('id'));
         ev.dataTransfer.setDragImage(ev.target,0,0); /*使得拖拽过程中鼠标在图像左上角*/
     }
 
-    function allowDrop(ev) {
+    function handleDragOver(ev) {   /*dragover 事件会在鼠标悬停在上方时不断启动*/
         ev.preventDefault();    /*允许放置*/
     }
 
-    function drop(ev) { 
+    function handleDragLeave(ev){
+        ev.target.parentNode.classList.remove('over');
+    }
+
+    function handleDrop(ev) {
+        ev.target.parentNode.classList.remove('over'); 
         ev.preventDefault();    /*可以放置*/
-        var src = ev.dataTransfer.getData("Text");
+        var lis = document.querySelectorAll('#result li');
+        var src = ev.dataTransfer.getData("SRC_ID");
         var data_old = ev.target.parentNode.innerHTML;
         ev.target.parentNode.innerHTML = document.getElementById(src).innerHTML;
         document.getElementById(src).innerHTML = data_old;
     }
 
-    function forbidDrop(ev){
-        return false;
+    function handleDragEnter(ev){
+        var tar = ev.target.parentNode;
+        tar.classList.add('over');
     }
-
-    function noDrop(ev){
-        return false;
-    }
-
-   
-
 
 </script>
 </html>
