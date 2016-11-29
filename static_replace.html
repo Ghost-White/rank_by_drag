@@ -68,10 +68,22 @@
         }
     }
 
+    var src_id = null,
+        tar_id = null;
+
+    function set_src_id(id){
+        src_id = id;
+    }
+
+    function get_src_id(){
+        return src_id;
+    }
+
     function handleDragStart(ev){  /*这里的 ev.target指的是最开始触发事件的元素<img>，因为事件冒泡，使得其父元素的事件处理函数来处理该事件*/
         ev.dataTransfer.effectAllowed='move';
         ev.dataTransfer.setData("SRC_ID",ev.target.parentNode.getAttribute('id'));
         ev.dataTransfer.setDragImage(ev.target,0,0); /*使得拖拽过程中鼠标在图像左上角*/
+        set_src_id(ev.target.parentNode.getAttribute('id'));
     }
 
     function handleDragOver(ev) {   /*dragover 事件会在鼠标悬停在上方时不断启动*/
@@ -94,7 +106,12 @@
 
     function handleDragEnter(ev){
         var tar = ev.target.parentNode;
-        tar.classList.add('over');
+        var tar_id = ev.target.parentNode.getAttribute('id');
+        var src_id = get_src_id();
+        console.log(tar_id+","+src_id);
+        if(tar_id !== src_id){
+            tar.classList.add('over');
+        }   
     }
 
 </script>

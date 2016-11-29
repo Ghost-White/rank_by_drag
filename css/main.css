@@ -64,10 +64,11 @@ ul li{
 	position: relative;
 }
 .result li{
-	width: 220px;
-	height: 220px;
+	width: 218px;
+	height: 218px;
 	float: left;
 	cursor: move;
+	border:1px dashed white;
 }
 
 .result li.over{
@@ -106,4 +107,8 @@ ul li{
 	width:200px;
 	height: 200px;	
 	padding: 10px;	
+}
+
+.animate{
+	transition: all 500ms;
 }

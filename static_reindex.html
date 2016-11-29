@@ -1,22 +1,22 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-	<meta charset="utf-8">
-	<title>使用顺延的方式排序</title>
-	<link rel="stylesheet" type="text/css" href="css/main.css">
-	<script type="text/javascript" src="js/main.js"></script>
+    <meta charset="utf-8">
+    <title>使用顺延的方式排序</title>
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <script type="text/javascript" src="js/main.js"></script>
 </head>
 <body>
-	<div class="main">
-		<div class="upload_img">
-		    <div class="upload_button">
-		    	<input type="file" id="files" multiple size="10" onchange="fileChange()" />
-		    	点击这里上传图片
-		    </div>
-            <p>使用顺延的方式排序</p>		    
-	    </div>
-		<ul id="result" class="error result"></ul>		
-	</div>
+    <div class="main">
+        <div class="upload_img">
+            <div class="upload_button">
+                <input type="file" id="files" multiple size="10" onchange="fileChange()" />
+                点击这里上传图片
+            </div>
+            <p>使用顺延的方式排序</p>            
+        </div>
+        <ul id="result" class="error result"></ul>      
+    </div>
 </body>
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript">
@@ -29,9 +29,9 @@
     var files = document.getElementById("files");
 
     function fileChange(){
-    	readFiles(files,result);
-    	var timer = setInterval(function(){
-    		if(result.getElementsByTagName("li").length==files.files.length){
+        readFiles(files,result);
+        var timer = setInterval(function(){
+            if(result.getElementsByTagName("li").length==files.files.length){
                 /*depatch the events here !*/
                 var lis = document.querySelectorAll('#result li');
                 [].forEach.call(lis, function(li) {
@@ -41,9 +41,9 @@
                   li.querySelectorAll('img')[0].addEventListener('dragleave', handleDragLeave, false);
                   li.querySelectorAll('img')[0].addEventListener('drop',handleDrop,false);
                 });
-    			clearInterval(timer);
-    		}
-    	},10);
+                clearInterval(timer);
+            }
+        },10);
     }
     var parentNode = document.getElementById("result");
 
@@ -105,31 +105,11 @@
         var tar = ev.target.parentNode;
         var src = document.getElementById(ev.dataTransfer.getData('SRC_ID'));
 
-        src_top = src.offsetTop;
-        src_left = src.offsetLeft;
-        tar_top = tar.offsetTop;
-        tar_left = tar.offsetLeft;
-
-        var src_ghost_node = document.querySelectorAll('#result .src')[0],
-            tar_ghost_node = document.querySelectorAll('#result .tar')[0];
-
-        src_ghost_node.style.left = tar_left;
-        src_ghost_node.style.top = tar_top;
-        tar_ghost_node.style.left = src_left;
-        tar_ghost_node.style.top = src_top;
-
         return false;
     }
 
     function handleDragEnter(ev){       /*无法获取 dataTransfer 的数据，只能通过全局变量保存数据*/ 
-
-        /*先清理掉之前生成的 ghost element */
         var parent = document.getElementById('result');
-        var child = parent.querySelectorAll('.ghost');
-        for(var c of child){
-            parent.removeChild(c);
-        }
-
         var tar = ev.target.parentNode;
         var tar_id = ev.target.parentNode.getAttribute('id');
         var src_id = get_src_id();
@@ -137,29 +117,16 @@
             console.log('enter:'+ev.target.parentNode.getAttribute('id'));
             tar.classList.add('over');
             var src = document.getElementById(src_id);
-            var src_top,src_left,tar_top,tar_left;  /*ghost elements' position*/
 
-            src_top = src.offsetTop;
-            src_left = src.offsetLeft;
-            tar_top = tar.offsetTop;
-            tar_left = tar.offsetLeft;
+            var src_index = getChildrenIndex(src),
+                tar_index = getChildrenIndex(tar);
 
-            var src_ghost_node = document.createElement("div");
-            src_ghost_node.classList.add("ghost");
-            src_ghost_node.classList.add("src");
-            src_ghost_node.style.left = src_left+'px';
-            src_ghost_node.style.top = src_top+'px';
-            src_ghost_node.innerHTML = src.innerHTML;
-
-            var tar_ghost_node = document.createElement("div");
-            tar_ghost_node.classList.add("ghost");
-            src_ghost_node.classList.add("tar");
-            tar_ghost_node.style.left = tar_left+'px';
-            tar_ghost_node.style.top = tar_top+'px';
-            tar_ghost_node.innerHTML = tar.innerHTML;
-
-            document.getElementById('result').appendChild(src_ghost_node);
-            document.getElementById('result').appendChild(tar_ghost_node);
+            if(src_index > tar_index){
+                parent.insertBefore(src,tar);
+            }else if(src_index < tar_index){
+                parent.insertBefore(src,tar.nextElementSibling);
+            }
+            
         }else{
             return false;
         }
