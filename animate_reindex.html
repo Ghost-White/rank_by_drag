@@ -100,27 +100,104 @@
     function handleDrop(ev) {
         /*ev.target.parentNode.classList.remove('over');*/ 
         ev.preventDefault();    /*可以放置*/
-        /*设置 ghost element 的新位置，实现动画效果*/
         var tar = ev.target.parentNode;
         var src = document.getElementById(ev.dataTransfer.getData('SRC_ID'));
-
         return false;
     }
 
     function handleDragEnter(ev){       /*无法获取 dataTransfer 的数据，只能通过全局变量保存数据*/ 
-        var parent = document.getElementById('result');
-        var tar = ev.target.parentNode;
-        var tar_id = ev.target.parentNode.getAttribute('id');
-        var src_id = get_src_id();
+        
+        var tar_id = ev.target.parentNode.getAttribute('id'),
+            src_id = get_src_id();
+
         if(tar_id !== src_id){
+            var tar = ev.target.parentNode,
+                parent = tar.parentNode,
+                src = document.getElementById(src_id);
+
+/*            var parent_width = parent.offsetWidth,
+                src_width = src.offsetWidth,
+                src_hight = src.offsetHeight;*/
+
             console.log('enter:'+ev.target.parentNode.getAttribute('id'));
-            /*tar.classList.add('over');*/
-            var src = document.getElementById(src_id);
 
             var src_index = getChildrenIndex(src),
                 tar_index = getChildrenIndex(tar);
 
-            var tar_nextsibling = tar.nextElementSibling,
+            /*var transform_arr = new Array();
+            if(src_index > tar_index){
+                for(var i = tar_index;i<src_index;i++){
+                    var node = parent.childNodes[i],
+                        t_left = 0,
+                        t_top = 0,
+                        next_node = node.nextElementSibling;
+                    if(node.offsetLeft<=node.nextElementSibling.offsetLeft){
+                        t_left = src_width;
+                    }else{
+                        t_left = next_node.offsetLeft - node.offsetLeft;
+                        t_top = next_node.offsetTop - node.offsetTop;
+                    }
+                    var element = {
+                        node:node,
+                        t_left:t_left,
+                        t_top:t_top
+                    }
+                    transform_arr.push(element);      //后移
+                }
+                element = {
+                    node:src,
+                    t_left:tar.offsetLeft - src.offsetLeft,
+                    t_top:tar.offsetTop - src.offsetTop
+                }
+                transform_arr.push(element);
+            }else if(src_index < tar_index){
+                var whole_width = 0;
+                for(var j = src_index+1;j<tar_index+1;j++){
+                    var node = parent.childNodes[j],
+                        t_left = 0,
+                        t_top = 0,
+                        pre_node = node.previousElementSibling
+                    if(node.offsetLeft>=pre_node.offsetLeft){
+                        t_left = src_width;
+                    }else{
+                        t_left = (pre_node.offsetLeft - src_width + pre_node.offsetWidth) - node.offsetLeft;
+                        t_top = pre_node.offsetTop - node.offsetTop;
+                    }
+                    var element = {
+                        node:node,
+                        t_left:t_left,
+                        t_top:t_top
+                    }
+                    transform_arr.push(parent.childNodes[i]);       //前移
+                }
+                element = {
+                    node:src,
+                    t_left:
+                }
+
+            }else{
+                return;
+            }*/
+
+            
+            var src_left_old = src.offsetLeft,
+                src_top_old = src.offsetTop,
+                tar_left_old = tar.offsetLeft,
+                tar_top_old = tar.offsetTop;
+
+            changeIndex();
+
+            var src_left_new = src.offsetLeft,
+                src_top_new = src.offsetTop,
+                tar_left_new = tar.offsetLeft,
+                tar_top_new = tar.offsetTop;
+
+            var src_left_t = src_left_old - src_left_new,
+                src_top_t = src_top_old - src_top_new,
+                tar_left_t = tar_left_old - tar_left_new,
+                tar_top_t = tar_top_old - tar_top_new;
+
+            /*var tar_nextsibling = tar.nextElementSibling,
                 tar_presibling = tar.previousElementSibling;
 
             var src_top = src.offsetTop,
@@ -136,8 +213,7 @@
             if(tar_nextsibling !== null && tar_nextsibling !== undefined){
                 var tar_next_left = tar_nextsibling.offsetLeft,
                     tar_next_top = tar_nextsibling.offsetTop;
-            }
-            
+            }  
 
             var src_translate_left = tar_left - src_left,
                 src_translate_top = tar_top - src_top,
@@ -150,32 +226,40 @@
             }else{
                 tar_translate_left = tar_pre_left - tar_left;
                 tar_translate_top = tar_pre_top - tar_top;
+            }*/
+
+            function transform(){
+/*                src.classList.add('animate');
+                tar.classList.add('animate');  */    
+                src.style.transform = `translate(${src_left_t}px,${src_top_t}px)`;          
+                tar.style.transform = `translate(${tar_left_t}px,${tar_top_t}px)`;
+                src.classList.add('animate');
+                tar.classList.add('animate');
+                src.style.transform = `translate(0,0)`;
+                tar.style.transform = `translate(0,0)`;
             }
             
-            src.classList.add('animate');
-            tar.classList.add('animate');
-
-            src.style.transform = `translate(${src_translate_left}px,${src_translate_top}px)`;          
-            tar.style.transform = `translate(${tar_translate_left}px,${tar_translate_top}px)`;
+            transform();
+        //    clear_transform();
 
             var timer = setTimeout(function(){
-                changeIndex();
-                clear_transform();
-            },500);
+                src.classList.remove('animate');
+                tar.classList.remove('animate');
+            },5000);
 
             function changeIndex(){
                 if(src_index > tar_index){
                     parent.insertBefore(src,tar);
                 }else if(src_index < tar_index){
-                    parent.insertBefore(src,tar_nextsibling);
+                    insertAfter(src,tar);
                 }
             }
 
             function clear_transform(){
-                src.style.transform = `translate(0px,0px)`;
-                tar.style.transform = `translate(0px,0px)`;
-                src.classList.remove('animate');
-                tar.classList.remove('animate');
+                src.classList.add('animate');
+                tar.classList.add('animate');
+                src.style.transform = `translate(0,0)`;
+                tar.style.transform = `translate(0,0)`;
             }
 
         }else{

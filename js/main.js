@@ -22,6 +22,19 @@ function getStyle(obj,attr){
 	}
 }
 
+function insertAfter(newEl, targetEl)
+        {
+            var parentEl = targetEl.parentNode;
+            
+            if(parentEl.lastChild == targetEl)
+            {
+                parentEl.appendChild(newEl);
+            }else
+            {
+                parentEl.insertBefore(newEl,targetEl.nextElementSibling);
+            }            
+        }
+
 //可以实现改变width/height/font-size/border/left/right/opacity
 function animate(obj,json,fn){	//json相当于{attr1:iTarget1,attr2:iTarget2},实现多对属性同时变换
 	//obj--object要变化的目标

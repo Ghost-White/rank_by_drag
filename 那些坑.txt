@@ -1,0 +1,6 @@
+1、事件响应
+一开始打算用onmousedown、onmousemove、onmouseup实现，后扑街。重新用h5的drag和drop事件，在层次结构上纠结了一下，主要是dragleave事件，鼠标移动到padding区域时就会触发，因为一开始事件绑定在父元素<li>上，由于触发事件的是子元素<img>，由事件冒泡到父元素处理，因此鼠标移出li会触发两次dragleave：一次是移动到img的padding上触发，另一次是移动到li外时触发。
+
+2、动画实现
+1.最开始的方法是构造两个与tar、src节点外形一模一样的<div>，使其定位为绝对定位，然后用js动画实现（类似jQuery animate方法），扑街（主要是因为麻烦，易出错，中途停止）。
+2.后用css transition实现，后卡在。。。

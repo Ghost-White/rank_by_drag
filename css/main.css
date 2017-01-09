@@ -110,5 +110,16 @@ ul li{
 }
 
 .animate{
-	transition: all 500ms;
+	transition:all 5000ms;
+	-moz-transition:all 5000ms;
+	-webkit-transition:all 5000ms;
+	-o-transition:all 5000ms;
+}
+.border{
+	border: 1px solid red;
+}
+
+.checked{
+	opacity: 0.5;
+	border: 1px solid red !important;
 }
