@@ -12,13 +12,13 @@
                 <input type="file" id="files" multiple size="10" onchange="fileChange()" />
                 点击这里上传图片
             </div>
-            <p>同时拖动多个图片，左键点击选择，右键点击取消选择或放置图片</p>            
+            <p>同时拖动多个图片，左键点击选择，右键点击放置图片</p>            
         </div>
         <ul id="result" class="error result"></ul>      
     </div>
 </body>
 <script type="text/javascript">
-	document.oncontextmenu = function(evnet){
+	document.oncontextmenu = function(evnet){  /*取消浏览器默认右键行为（图片）*/
 		if(event.target.nodeName=='IMG'){
 			return false;
 		}else{

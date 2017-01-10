@@ -28,6 +28,14 @@
 
     var files = document.getElementById("files");
 
+    document.oncontextmenu = function(evnet){  /*取消浏览器默认右键行为（图片）*/
+        if(event.target.nodeName=='IMG'){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
     function fileChange(){
         readFiles(files,result);
         var timer = setInterval(function(){
@@ -115,137 +123,79 @@
                 parent = tar.parentNode,
                 src = document.getElementById(src_id);
 
-/*            var parent_width = parent.offsetWidth,
-                src_width = src.offsetWidth,
-                src_hight = src.offsetHeight;*/
-
             console.log('enter:'+ev.target.parentNode.getAttribute('id'));
 
             var src_index = getChildrenIndex(src),
                 tar_index = getChildrenIndex(tar);
 
-            /*var transform_arr = new Array();
-            if(src_index > tar_index){
-                for(var i = tar_index;i<src_index;i++){
-                    var node = parent.childNodes[i],
-                        t_left = 0,
-                        t_top = 0,
-                        next_node = node.nextElementSibling;
-                    if(node.offsetLeft<=node.nextElementSibling.offsetLeft){
-                        t_left = src_width;
-                    }else{
-                        t_left = next_node.offsetLeft - node.offsetLeft;
-                        t_top = next_node.offsetTop - node.offsetTop;
-                    }
-                    var element = {
-                        node:node,
-                        t_left:t_left,
-                        t_top:t_top
-                    }
-                    transform_arr.push(element);      //后移
-                }
-                element = {
-                    node:src,
-                    t_left:tar.offsetLeft - src.offsetLeft,
-                    t_top:tar.offsetTop - src.offsetTop
-                }
-                transform_arr.push(element);
-            }else if(src_index < tar_index){
-                var whole_width = 0;
-                for(var j = src_index+1;j<tar_index+1;j++){
-                    var node = parent.childNodes[j],
-                        t_left = 0,
-                        t_top = 0,
-                        pre_node = node.previousElementSibling
-                    if(node.offsetLeft>=pre_node.offsetLeft){
-                        t_left = src_width;
-                    }else{
-                        t_left = (pre_node.offsetLeft - src_width + pre_node.offsetWidth) - node.offsetLeft;
-                        t_top = pre_node.offsetTop - node.offsetTop;
-                    }
-                    var element = {
-                        node:node,
-                        t_left:t_left,
-                        t_top:t_top
-                    }
-                    transform_arr.push(parent.childNodes[i]);       //前移
-                }
-                element = {
-                    node:src,
-                    t_left:
-                }
-
-            }else{
-                return;
-            }*/
-
-            
-            var src_left_old = src.offsetLeft,
-                src_top_old = src.offsetTop,
-                tar_left_old = tar.offsetLeft,
-                tar_top_old = tar.offsetTop;
-
-            changeIndex();
-
-            var src_left_new = src.offsetLeft,
-                src_top_new = src.offsetTop,
-                tar_left_new = tar.offsetLeft,
-                tar_top_new = tar.offsetTop;
-
-            var src_left_t = src_left_old - src_left_new,
-                src_top_t = src_top_old - src_top_new,
-                tar_left_t = tar_left_old - tar_left_new,
-                tar_top_t = tar_top_old - tar_top_new;
-
-            /*var tar_nextsibling = tar.nextElementSibling,
-                tar_presibling = tar.previousElementSibling;
-
-            var src_top = src.offsetTop,
-                src_left = src.offsetLeft,
+            var els = new Array();
+            var src_left = src.offsetLeft,
+                src_top = src.offsetTop,
+                tar_left = tar.offsetLeft,
                 tar_top = tar.offsetTop,
-                tar_left = tar.offsetLeft;
+                els_left = new Array(),
+                els_top = new Array();
 
-            if(tar_presibling !== null && tar_presibling !== undefined){
-                var tar_pre_left = tar_presibling.offsetLeft,
-                    tar_pre_top = tar_presibling.offsetTop;
+            if(src_index<tar_index){
+                for(var i=src_index+1;i<tar_index+1;i++){
+                    els.push(parent.childNodes[i]);
+                    els_left.push(parent.childNodes[i].offsetLeft);
+                    els_top.push(parent.childNodes[i].offsetTop);
+                }
+            }else{
+                for(var j=tar_index;j<src_index;j++){
+                    els.push(parent.childNodes[j]);
+                    els_left.push(parent.childNodes[j].offsetLeft);
+                    els_top.push(parent.childNodes[j].offsetTop);
+                }
             }
 
-            if(tar_nextsibling !== null && tar_nextsibling !== undefined){
-                var tar_next_left = tar_nextsibling.offsetLeft,
-                    tar_next_top = tar_nextsibling.offsetTop;
-            }  
+            var src_left_t = tar_left - src_left,
+                src_top_t = tar_top - src_top;
+            var src_w = src.offsetWidth,
+                src_h = src.offsetHeight;
 
-            var src_translate_left = tar_left - src_left,
-                src_translate_top = tar_top - src_top,
-                tar_translate_left,
-                tar_translate_top;
-
-            if(src_index > tar_index){
-                tar_translate_left = tar_next_left - tar_left;
-                tar_translate_top = tar_next_top - tar_top;
-            }else{
-                tar_translate_left = tar_pre_left - tar_left;
-                tar_translate_top = tar_pre_top - tar_top;
-            }*/
+            transform();       
+            var timer = setTimeout(function(){
+                changeIndex();
+                clear_transform();
+            },1000);
 
             function transform(){
-/*                src.classList.add('animate');
-                tar.classList.add('animate');  */    
-                src.style.transform = `translate(${src_left_t}px,${src_top_t}px)`;          
-                tar.style.transform = `translate(${tar_left_t}px,${tar_top_t}px)`;
                 src.classList.add('animate');
-                tar.classList.add('animate');
-                src.style.transform = `translate(0,0)`;
-                tar.style.transform = `translate(0,0)`;
+                tar.classList.add('animate');   
+                src.style.transform = `translate(${src_left_t}px,${src_top_t}px)`;
+                var els_left_t = 0,
+                    els_top_t = 0;
+                if(src_index<tar_index){
+                    for(var el_1 of els){
+                        var pre = el_1.previousElementSibling;
+                        if(el_1.offsetLeft>src_w){
+                            els_left_t = -src_w;
+                            els_top_t = 0;
+                        }else if(el_1.offsetWidth<=src_w){  /*换行*/
+                            els_left_t = (pre.offsetLeft - src_w + pre.offsetWidth) - el_1.offsetLeft;
+                            els_top_t = pre.offsetTop - el_1.offsetTop;
+                        }else{
+                            els_left_t = -el_1.offsetLeft;
+                            els_top_t = 0;
+                        }
+                        el_1.style.transform = `translate(${els_left_t}px,${els_top_t}px)`;
+                    }
+                }else{  /*bug:元素宽度不同时会出错*/
+                    for(var el_2 of els){
+                        var next = el_2.nextElementSibling;
+                        if(parent.offsetWidth - el_2.offsetLeft - el_2.offsetWidth > src_w){    
+                            els_left_t = src_w;
+                            els_top_t = 0;
+                        }else{
+                            els_left_t = -el_2.offsetLeft;
+                            els_top_t = next.offsetTop - el_2.offsetTop;
+                        }
+                        el_2.style.transform = `translate(${els_left_t}px,${els_top_t}px)`;
+                    }
+                }            
             }
-            
-            transform();
-        //    clear_transform();
-
-            var timer = setTimeout(function(){
-                src.classList.remove('animate');
-                tar.classList.remove('animate');
-            },5000);
 
             function changeIndex(){
                 if(src_index > tar_index){
@@ -256,10 +206,13 @@
             }
 
             function clear_transform(){
-                src.classList.add('animate');
-                tar.classList.add('animate');
+                src.classList.remove('animate');
+                tar.classList.remove('animate');
                 src.style.transform = `translate(0,0)`;
                 tar.style.transform = `translate(0,0)`;
+                for(var el of els){
+                    el.style.transform = `translate(0,0)`;
+                }
             }
 
         }else{
