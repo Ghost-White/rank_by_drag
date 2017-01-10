@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
 	<title>同时拖动多个图片</title>
 	<link rel="stylesheet" type="text/css" href="css/main.css">
     <script type="text/javascript" src="js/main.js"></script>
@@ -55,7 +56,7 @@
         target.innerHTML = '';
         var img_length = files.files.length;
         var i = 0;
-        for(var simpleFile of files.files){           
+        [].forEach.call(files.files,function(simpleFile){
             if(simpleFile == undefined){
                 target.innerHTML = "请先选择要上传的图片！";
             }
@@ -69,7 +70,7 @@
                target.innerHTML += '<li id="drag_'+i+'"><img draggable="true" src="'+this.result+'" alt=""/></li>';
                i++;
             }
-        }
+        });
     }
 
     function handleClick(el,event){
@@ -78,11 +79,10 @@
 		}else if(event.button == 2){		/*右键*/
 			var parent = el.parentNode;
 			var lis = parent.querySelectorAll('.checked');
-
-			for(var li of lis){
-				parent.insertBefore(li,el);
-				li.classList.remove('checked');
-			}
+            [].forEach.call(lis,function(li){
+                parent.insertBefore(li,el);
+                li.classList.remove('checked');
+            });
 		}
     }
 </script>

@@ -51,7 +51,8 @@
         target.innerHTML = '';
         var img_length = files.files.length;
         var i = 0;
-        for(var simpleFile of files.files){           
+
+        [].forEach.call(files.files,function(simpleFile){
             if(simpleFile == undefined){
                 target.innerHTML = "请先选择要上传的图片！";
             }
@@ -65,7 +66,7 @@
                target.innerHTML += '<li id="drag_'+i+'" draggable="true"><img src="'+this.result+'" alt=""/></li>';
                i++;
             }
-        }
+        });
     }
 
     var src_id = null,

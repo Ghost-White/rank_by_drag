@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>使用顺延的方式排序</title>
+    <title>使用插入的方式动态排序</title>
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <script type="text/javascript" src="js/main.js"></script>
 </head>
@@ -13,7 +13,7 @@
                 <input type="file" id="files" multiple size="10" onchange="fileChange()" />
                 点击这里上传图片
             </div>
-            <p>使用顺延的方式排序</p>            
+            <p>使用插入的方式动态排序</p>            
         </div>
         <ul id="result" class="error result"></ul>      
     </div>
@@ -59,8 +59,8 @@
         target.innerHTML = '';
         var img_length = files.files.length;
         var i = 0;
-        for(var simpleFile of files.files){           
-            if(simpleFile == undefined){
+        [].forEach.call(files.files,function(simpleFile){
+             if(simpleFile == undefined){
                 target.innerHTML = "请先选择要上传的图片！";
             }
             if(!/image\/\w+/.test(simpleFile.type)) {
@@ -73,7 +73,7 @@
                target.innerHTML += '<li id="drag_'+i+'"><img draggable="true" src="'+this.result+'" alt=""/></li>';
                i++;
             }
-        }
+        });
     }
 
     var src_id = null,
