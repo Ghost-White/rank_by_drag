@@ -41,43 +41,27 @@
         var timer = setInterval(function(){
             if(result.getElementsByTagName("li").length==files.files.length){
                 /*depatch the events here !*/
-                clearInterval(timer);
-                /*var lis = document.querySelectorAll('#result li');*/
-                addListener(result);
-            
-               /* [].forEach.call(lis, function(li) {
+                var lis = document.querySelectorAll('#result li');
+                [].forEach.call(lis, function(li) {
                   li.querySelectorAll('img')[0].addEventListener('dragstart', handleDragStart, false);
                   li.querySelectorAll('img')[0].addEventListener('dragenter', handleDragEnter, false);
                   li.querySelectorAll('img')[0].addEventListener('dragover', handleDragOver, false);
-                li.querySelectorAll('img')[0].addEventListener('dragleave', handleDragLeave, false);
+                  li.querySelectorAll('img')[0].addEventListener('dragleave', handleDragLeave, false);
                   li.querySelectorAll('img')[0].addEventListener('drop',handleDrop,false);
-                });*/
+                });
+                clearInterval(timer);
             }
         },10);
     }
+    var parentNode = document.getElementById("result");
 
-    var event_flag = false;
-
-    function addListener(node){
-        console.log('hello')
-        node.addEventListener('dragstart',handleDragStart);
-        node.addEventListener('dragenter',handleDragEnter);
-        node.addEventListener('drop',handleDrop);
-    }
-    function removeListener(node){
-        node.removeEventListener('dragstart',handleDragStart);
-        node.removeEventListener('dragenter',handleDragEnter);
-        node.removeEventListener('drop',handleDrop);
-    }
-
-    function readFiles(input_node,preview_node){
-        preview_node.innerHTML = '';
-        var img_length = input_node.files.length;
+    function readFiles(files,target){
+        target.innerHTML = '';
+        var img_length = files.files.length;
         var i = 0;
-        [].forEach.call(input_node.files,function(simpleFile){
-            if(simpleFile == undefined){
+        [].forEach.call(files.files,function(simpleFile){
+             if(simpleFile == undefined){
                 target.innerHTML = "请先选择要上传的图片！";
-                return false;
             }
             if(!/image\/\w+/.test(simpleFile.type)) {
                 alert("请确保文件类型为图片");
@@ -86,7 +70,7 @@
             var reader = new FileReader();
             reader.readAsDataURL(simpleFile);
             reader.onload = function(e){    
-               preview_node.innerHTML += '<li id="drag_'+i+'"><img draggable="true" src="'+this.result+'" alt=""/></li>';
+               target.innerHTML += '<li id="drag_'+i+'"><img draggable="true" src="'+this.result+'" alt=""/></li>';
                i++;
             }
         });
@@ -130,21 +114,11 @@
     }
 
     function handleDragEnter(ev){       /*无法获取 dataTransfer 的数据，只能通过全局变量保存数据*/ 
-        if(ev.target.nodeName !== 'IMG'){
-            return;
-        }
-
+        
         var tar_id = ev.target.parentNode.getAttribute('id'),
             src_id = get_src_id();
 
         if(tar_id !== src_id){
-            console.log(tar_id+','+src_id)
-            console.log(event_flag)
-            if(event_flag==true){
-                return;
-            }
-            event_flag = true;
-
             var tar = ev.target.parentNode,
                 parent = tar.parentNode,
                 src = document.getElementById(src_id);
@@ -185,7 +159,6 @@
             var timer = setTimeout(function(){
                 changeIndex();
                 clear_transform();
-                event_flag = false;
             },1000);
 
             function transform(){
